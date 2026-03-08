@@ -1,0 +1,24 @@
+version: '3.8'
+
+services:
+  semantic-search:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: semantic-search-api
+    ports:
+      - "8000:8000"
+    volumes:
+      # Mount cache directory to persist data between container restarts
+      # This avoids rebuilding embeddings and clustering on every restart
+      - ./cache_data:/app/cache_data
+    environment:
+      # Python environment variables
+      - PYTHONUNBUFFERED=1
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 180s
